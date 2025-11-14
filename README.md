@@ -15,6 +15,7 @@ System Intelligence Benchmark currently includes the following example benchmark
 - **Course Project Benchmark** (`benchmarks/course_project_bench/`) - Assesses AI capability on practical system course projects
 - **Cache Benchmark** (`benchmarks/cache_bench/`) - Evaluates AI performance on cache algorithm design tasks
 - **Example Benchmark** (`benchmarks/example_bench/`) - Template and reference implementation for creating new benchmarks
+- **SysMoBench** (`benchmarks/sysmobench/`) - Evaluates an agent's ability to produce correct TLA+ models for real-world concurrent and distributed systems
 
 ## Quick Start
 ### Repo Structure

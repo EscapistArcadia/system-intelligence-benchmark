@@ -1,98 +1,107 @@
 # SysMoBench: Evaluating AI on Formally Modeling Complex Real-World Systems
 
-## Overview
+## Scenario Description
 
-Formal models are essential to specifying large, complex computer systems and verifying their correctness, but are notoriously expensive to write and maintain. Recent advances in generative AI show promise in generating certain forms of specifications. However, existing work mostly targets small code, not complete systems. It is unclear whether AI can deal with realistic system artifacts, as this requires abstracting their complex behavioral properties into formal models.
+Formal models are essential to specifying large, complex computer systems and verifying their correctness, but are notoriously expensive to write and maintain. SysMoBench evaluates whether LLM-powered agents can translate realistic system artifacts into executable TLA+ specifications that pass rigorous syntactic, semantic, and invariant checks.
 
-SysMoBench presents a benchmark that evaluates AI's ability to formally model large, complex systems. We focus on concurrent and distributed systems, which are keystones of today's critical computing infrastructures, encompassing operating systems and cloud infrastructure. We use TLA+, the de facto specification language for concurrent and distributed systems, though the benchmark can be extended to other specification languages.
+![SysMoBench Overview](sysmobench_core/docs/pic/overview.png)
 
-We address the primary challenge of evaluating AI-generated models by automating metrics like syntactic and runtime correctness, conformance to system code, and invariant correctness. SysMoBench currently includes nine diverse system artifacts: the Raft implementation of Etcd and Redis, the Spinlock and Mutex in Asterinas OS, etc.; more artifacts are being actively added.
+### Task Details
 
-SysMoBench sources its tasks from real-world systems and automatically evaluates AI-generated TLA+ models with different metrics,
-   as illustrated in the following figure.
-![SysMoBench Overview](docs/pic/overview.png)
+- **Input**
+  - System source code plus task-specific prompts and invariants from `sysmobench_core/tla_eval/tasks/<task_name>/`
+  - Agent parameters (method, model name, iteration budget)
+  - TLA+ evaluation configuration and trace data
+- **Output**
+  - Generated TLA+ specification (`GenerationResult.tla_specification`)
+  - Iterative correction summaries with compilation/runtime verdicts
+- **Evaluation**
+  - `compilation_check` / `action_decomposition` (syntax correctness via SANY)
+  - `runtime_coverage` (TLC simulation coverage)
+  - `trace_validation` / `pgo_trace_validation` (conformance to real system traces)
+  - `invariant_verification` (system-specific safety/liveness properties)
 
+### Key Features
 
-## Key Features
+- Automated four-phase evaluation pipeline covering syntax, runtime, trace conformance, and invariants
+- Nine real-world concurrent and distributed systems (Etcd Raft, Redis Raft, Asterinas primitives, Xline CURP, PGo suites)
+- Extensible configuration for adding new systems via prompts, traces, and invariant templates
 
-- **Automated Quality Metrics**: Four automated phases evaluate AI-generated models from multiple dimensions: syntax correctness, runtime correctness, conformance to system implementation, and invariant correctness.
-
-- **Real-World System Artifacts**: Nine diverse widely used systems, including distributed consensus systems (Etcd Raft, Redis Raft), concurrent synchronization systems (Asterinas Spinlock/Mutex/Rwmutex), distributed replication systems (Xline CURP), and PGo-compiled systems.
-
-- **Extensible Framework**: Adding new system artifacts requires no reference model—only system code, instrumentation for trace collection, and invariant templates, making the benchmark easy to extend with additional systems.
-
-## Installation
+## Benchmark Setup
 
 ### Prerequisites
 
-- Python 3.8+
-- Java 11+ (for TLA+ tools)
+- Python 3.9+
+- Java 11+ (SANY/TLC binaries are downloaded during installation)
+- Anthropic evaluator key (required for trace/invariant workflows)
+- LLM credentials for the model under test (OpenAI, Azure OpenAI, Anthropic, etc.)
 
-### Setup
+### Configuration
 
-1. Navigate to the project directory and install:
+Edit `benchmarks/sysmobench/env.toml`:
 
-```bash
-cd LLM_Gen_TLA_benchmark_framework
-pip install -e .
+```toml
+[evaluator_api_keys]
+ANTHROPIC_API_KEY = "your_evaluator_key"
+
+[llm]
+OPENAI_API_KEY = "your_openai_key"
+AZURE_API_KEY = "your_azure_key"
+AZURE_API_BASE = "https://your-azure-endpoint.openai.azure.com"
+AZURE_API_VERSION = "2024-05-01-preview"
+ANTHROPIC_API_KEY = "your_model_key"
+
+[hardware]
+use_gpu = false
+
+[env-docker]
+image = "default"
+entrypoint = "./run.sh"
 ```
 
-2. Download TLA+ tools:
+### Install Dependencies
 
 ```bash
-sysmobench-setup
+cd benchmarks/sysmobench
+./install.sh
 ```
 
-3. Configure API keys:
+This script installs OpenJDK when necessary, creates `.venv/`, installs `benchmarks/sysmobench/requirements.txt`, registers `sysmobench_core` in editable mode (exposing `sysmobench`/`sysmobench-setup`), and downloads the TLA+ toolchain.
+
+### Run the Benchmark
 
 ```bash
-export OPENAI_API_KEY="your-key"
-export ANTHROPIC_API_KEY="your-key"
-export GEMINI_API_KEY="your-key"
-export DEEPSEEK_API_KEY="your-key"
+./run.sh <model_name>
 ```
 
-4. Verify installation:
+The wrapper executes `src/main.py` with the default task list from `data/benchmark/tasks.jsonl`, iterating up to three correction rounds per task. Results are stored at:
+
+```
+outputs/sysmobench__<model>__agent_based__<timestamp>/
+├── result.jsonl   # Line-delimited iteration summaries per task
+└── avg_score.json # Final averaged score across tasks
+```
+
+### Use the SysCap CLI (optional)
+
+To orchestrate SysMoBench alongside other benchmarks:
 
 ```bash
+cd cli
+./run_all_local.sh <model_name>
+```
+
+### Using the upstream SysMoBench CLI (optional)
+
+```bash
+cd benchmarks/sysmobench
+source .venv/bin/activate
+sysmobench --task spin --method agent_based --model <model> --metric compilation_check
 sysmobench --list-tasks
+deactivate
 ```
 
-
-## Quick Start
-
-### Running Your First Evaluation
-
-**General usage:**
-```bash
-sysmobench --task <task> --method <method> --model <model> --metric <metric>
-```
-
-This example demonstrates how to evaluate an AI-generated TLA+ model for the Asterinas Spinlock system using compilation_check metric.
-
-```bash
-sysmobench --task spin --method direct_call --model claude --metric compilation_check
-```
-
-**Expected Output:**
-
-```
-[INFO] Starting benchmark evaluation for task: spin
-[INFO] Using method: direct_call, model: claude
-[INFO] Generating TLA+ specification...
-[INFO] Running syntax correctness evaluation with SANY...
-
-Syntax Evaluation Results: ✓ PASS
-Generation time: 12.34s
-Compilation time: 0.52s
-Syntax errors: 0
-Semantic errors: 0
-Compilation success rate: PASS (100.0%)
-
-Results saved to: output/spin/direct_call/claude/
-```
-
-For detailed usage instructions, see [Usage Guide](docs/Usage.md).
+For exhaustive CLI flag descriptions, see [Usage Guide](sysmobench_core/docs/Usage.md).
 
 ## Benchmark Tasks
 
@@ -121,7 +130,7 @@ sysmobench --list-tasks
 SysMoBench provides four automated phases to evaluate AI-generated TLA+ models with different metrics:
    syntax correctness, runtime correctness, conformance to system implementation, and invariant correctness.
 
-![Evaluation Workflow](docs/pic/SysMoBench.png)
+![Evaluation Workflow](sysmobench_core/docs/pic/SysMoBench.png)
 
 ### Reproducing Paper Results
 
@@ -174,7 +183,7 @@ SysMoBench is designed to be extensible. To add a new system artifact:
 2. **Create task definition**: Specify modeling requirements, task configuration and related files in `task.yaml` and define invariant templates for correctness properties
 3. **Instrument for trace collection**: Add logging statements to system code to collect execution traces for conformance validation
 
-For detailed instructions, see [Adding New Systems Guide](docs/add_new_system.md).
+For detailed instructions, see [Adding New Systems Guide](sysmobench_core/docs/add_new_system.md).
 
 
 ## Project Structure
