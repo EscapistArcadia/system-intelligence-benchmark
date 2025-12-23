@@ -13,7 +13,7 @@ VersionTuple = Tuple[int, ...]
 
 """
 The EMT AE appeared in OSDI 2025 consists of reproduction of two figures from the EMT paper: Figure 16 and Figure 18, consisting of normalized measurements of various metrics under different configurations (Radix vs. ECPT, THP no vs. THP yes, etc.).
-For now, I'd like to test the feasibility of automating the evaluation by the agent, so the current implementation only considers Figure 16. If this works well, I can extend it to Figure 18 later.
+For now, I'd like to test the feasibility of automating the evaluation by the agent, so the current implementation only considers Figure 18 (a, b, c). If this works well, I can extend it to Figure 16 later.
 """
 
 @dataclass(frozen=True)
@@ -161,7 +161,7 @@ class OracleEnvSetup:
     Core method that checks whether a certain dependency of a version 
     equal or greather than a reference version is installed.
     """
-    if dep.cmd_install:
+    if dep.cmd_install:                                                           # If installation command is provided, try to install if binary not found
       cmd_install_path = dep.cmd_install_path or os.getcwd()
       if not Path(dep.binary).exists():
         code, out, err = self.run_shell_command(dep.cmd_install, cwd=cmd_install_path)
@@ -219,12 +219,5 @@ class OracleEnvSetup:
     # logger.info(f"Paths: {'PASS' if ok else 'FAIL' + (' - ' + why if why else '')}")
     # results.append(ok)
 
-    # self.run_shell_command(["./setup/install_dependency.sh"], cwd=REPO_DIRS["emt"]) # This requires sudo, do we need this?
-    # self.run_shell_command(["./setup/setup_qemu_radix.sh"], cwd=REPO_DIRS["emt"])
-    # self.run_shell_command(["./setup/setup_linux_radix.sh"], cwd=REPO_DIRS["emt"])
-    # self.run_shell_command(["./setup/setup_qemu_ecpt.sh"], cwd=REPO_DIRS["emt"])
-    # self.run_shell_command(["./setup/setup_linux_ecpt.sh"], cwd=REPO_DIRS["emt"])
-
-
-if __name__ == "__main__":
-  OracleEnvSetup().run()
+# if __name__ == "__main__":
+#   OracleEnvSetup().run()
