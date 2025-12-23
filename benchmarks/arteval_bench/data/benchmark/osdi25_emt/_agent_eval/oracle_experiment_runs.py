@@ -115,6 +115,8 @@ class OracleExperimentRuns:
     if not ok:
       logger.error(why)
       return False
+    
+    return True
   
 if __name__ == "__main__":
   OracleExperimentRuns().run()

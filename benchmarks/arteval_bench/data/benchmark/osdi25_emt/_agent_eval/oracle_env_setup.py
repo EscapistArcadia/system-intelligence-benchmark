@@ -214,6 +214,7 @@ class OracleEnvSetup:
     ok, why = self.prereqs_check()
     logger.info(f"Prerequisites: {'PASS' if ok else 'FAIL' + (' - ' + why if why else '')}")
     results.append(ok)
+    return all(results)
 
     # ok, why = self.paths_check()
     # logger.info(f"Paths: {'PASS' if ok else 'FAIL' + (' - ' + why if why else '')}")
