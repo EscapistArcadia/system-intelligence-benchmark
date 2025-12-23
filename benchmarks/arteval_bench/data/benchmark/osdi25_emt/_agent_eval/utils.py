@@ -4,9 +4,9 @@ from pathlib import Path
 HOME = Path("/home/escapist/system-intelligence-benchmark/benchmarks/arteval_bench/data/benchmark/osdi25_emt")
 REPO_DIRS = {"emt": HOME / "emt"}
 
-REFERENCE_PATH = HOME / "_agent_eval" / "refs" / "emt-table-2.ref.json" # TODO: I haven't created and quite understood what is this file for.
-RESULTS_PATH = REPO_DIRS["emt"] / "emt-table-2.txt"
-SIMILARITY_RATIO = 0.75
+FIG18_REFERENCE_PATH = HOME / "_agent_eval" / "refs" / "emt-figure16.ref.csv" # TODO: Fill the paper data to the reference 
+FIG18_RESULT_PATH = REPO_DIRS["emt"] / "ipc_stats" / "figure18_results.csv"
+TOLERANCE = 0.02
 
 # PLACEHOLDER FOR FUTURE CONSTANTS UNTIL NEEDED
 # --- CUSTOM LOGGER --- #
@@ -19,7 +19,7 @@ os.makedirs('logs', exist_ok=True)
 LOG_FORMAT = '%(asctime)s | %(levelname)s | %(name)s | %(message)s'
 DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 
-logger = logging.getLogger("OSDI24-ANVIL-AGENT-EVALUATOR")
+logger = logging.getLogger("OSDI25-EMT-AGENT-EVALUATOR")
 logger.setLevel(logging.DEBUG)
 
 console_handler = logging.StreamHandler()
