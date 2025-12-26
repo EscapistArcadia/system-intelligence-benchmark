@@ -1,7 +1,7 @@
 from pathlib import Path
 
 # TODO: Changed from Path.home(), but not sure why the original used it.
-HOME = Path("/home/escapist/system-intelligence-benchmark/benchmarks/arteval_bench/data/benchmark/osdi25_emt")
+HOME = Path.cwd().parent
 REPO_DIRS = {"emt": HOME / "emt"}
 
 FIG18_REFERENCE_PATH = HOME / "_agent_eval" / "refs" / "emt-figure16.ref.csv" # TODO: Fill the paper data to the reference 
