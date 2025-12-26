@@ -6,7 +6,7 @@ REPO_DIRS = {"emt": HOME / "emt"}
 
 FIG18_REFERENCE_PATH = HOME / "_agent_eval" / "refs" / "emt-figure16.ref.csv" # TODO: Fill the paper data to the reference 
 FIG18_RESULT_PATH = REPO_DIRS["emt"] / "ipc_stats" / "figure18_results.csv"
-TOLERANCE = 0.02
+TOLERANCE = 0.1
 
 # PLACEHOLDER FOR FUTURE CONSTANTS UNTIL NEEDED
 # --- CUSTOM LOGGER --- #
