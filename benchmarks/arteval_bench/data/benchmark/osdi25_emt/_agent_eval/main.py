@@ -20,7 +20,7 @@ from evaluator.utils import (
   get_logger,
   record_result,
 )
-# from oracle_artifact_build import OracleArtifactBuild
+from oracle_artifact_build import OracleArtifactBuild
 from oracle_env_setup import OracleEnvSetup
 # from oracle_benchmark_prep import OracleBenchmarkPrep
 # from oracle_experiment_runs import OracleExperimentRuns
@@ -109,8 +109,8 @@ def main(argv: list[str]) -> int:
   env_checker = OracleEnvSetup(config = EMT_CONFIG, logger = logger)
   score += record_result(results, type(env_checker).__name__, env_checker.run(verbose = verbose))
 
-  # build_checker = OracleArtifactBuild(config = EMT_CONFIG, logger = logger)
-  # score += record_result(results, type(build_checker).__name__, build_checker.run(verbose = verbose))
+  build_checker = OracleArtifactBuild(config = EMT_CONFIG, logger = logger)
+  score += record_result(results, type(build_checker).__name__, build_checker.run(verbose = verbose))
 
   # prep_checker = OracleBenchmarkPrep(config = EMT_CONFIG, logger = logger)
   # score += record_result(results, type(prep_checker).__name__, prep_checker.run(verbose = verbose))
