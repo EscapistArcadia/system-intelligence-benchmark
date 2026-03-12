@@ -21,7 +21,7 @@ from evaluator.utils import (
   record_result,
 )
 # from oracle_artifact_build import OracleArtifactBuild
-# from oracle_env_setup import OracleEnvSetup
+from oracle_env_setup import OracleEnvSetup
 # from oracle_benchmark_prep import OracleBenchmarkPrep
 # from oracle_experiment_runs import OracleExperimentRuns
 
@@ -72,8 +72,8 @@ def _build_emt_config(*, agent_eval_dir: Path, workspace_root: Path) -> EntryCon
   """Constructs EntryConfig for the EMT evaluation bundle from resolved paths."""
   emt_repo = (workspace_root / "emt").resolve()
   emt_agent_eval = agent_eval_dir.resolve()
-  emt_refs = (emt_agent_eval / "refs").resolve()
-  emt_results = (emt_repo / "results").resolve()
+  emt_refs = (emt_agent_eval / "refs").resolve() # TODO: update the actual reference data and paths
+  emt_results = (emt_repo / "results").resolve() # TODO: update the logic to process results
 
   return EntryConfig(
     name = "osdi25-emt",
@@ -82,11 +82,11 @@ def _build_emt_config(*, agent_eval_dir: Path, workspace_root: Path) -> EntryCon
       "osdi25-emt": emt_repo,
     },
     results_paths = {
-      "timings": emt_results / "timings.json",
+      # "timings": emt_results / "timings.json",
     },
     ground_truth_paths = {
-      "datasets": emt_refs / "datasets.ref.json",
-      "timings": emt_refs / "timings.ref.json",
+      # "datasets": emt_refs / "datasets.ref.json",
+      # "timings": emt_refs / "timings.ref.json",
     },
     similarity_ratio = 0.75,
   )
@@ -97,7 +97,7 @@ def main(argv: list[str]) -> int:
   results: Dict[str, int] = {}
   score = 0
 
-  logger_name = os.environ.get("EVAL_LOGGER_NAME", "EGWALKER-AGENT-EVALUATOR")
+  logger_name = os.environ.get("EVAL_LOGGER_NAME", "EMT-AGENT-EVALUATOR")
   logger = get_logger(LoggerConfig(root_name = logger_name))
 
   try:
@@ -106,8 +106,8 @@ def main(argv: list[str]) -> int:
   except RuntimeError as exc:
     raise SystemExit(str(exc)) from exc
 
-  # env_checker = OracleEnvSetup(config = EMT_CONFIG, logger = logger)
-  # score += record_result(results, type(env_checker).__name__, env_checker.run(verbose = verbose))
+  env_checker = OracleEnvSetup(config = EMT_CONFIG, logger = logger)
+  score += record_result(results, type(env_checker).__name__, env_checker.run(verbose = verbose))
 
   # build_checker = OracleArtifactBuild(config = EMT_CONFIG, logger = logger)
   # score += record_result(results, type(build_checker).__name__, build_checker.run(verbose = verbose))
