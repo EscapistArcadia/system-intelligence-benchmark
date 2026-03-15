@@ -56,47 +56,36 @@ class OracleArtifactBuild(OracleArtifactBuildBase):
     """
 
     _DEFAULT_TARGET_SPECS: tuple[tuple[str, tuple[str, ...], float], ...] = (
-        # (
-        #     "artifact-core: make tools",
-        #     (
-        #         "make",
-        #         "-j8",
-        #         "tools/diamond-types/target/release/dt",
-        #         "tools/crdt-converter/target/release/crdt-converter",
-        #         "tools/diamond-types/target/release/paper-stats",
-        #         "tools/paper-benchmarks/target/memusage/paper-benchmarks",
-        #         "tools/paper-benchmarks/target/release/paper-benchmarks",
-        #         "tools/ot-bench/target/memusage/ot-bench",
-        #         "tools/ot-bench/target/release/ot-bench",
-        #     ),
-        #     300.0,
-        # ),
         (
             "qemu-system-x86_64: radix paging",
             ("make", "-j", str(multiprocessing.cpu_count()), "-C", "qemu-radix"),
             60.0,
+            None,
         ),
         (
             "EMT-Linux: radix paging",
             ("make", "-j", str(multiprocessing.cpu_count()), "-C", "emt-linux-radix", "LOCALVERSION=-gen-x86"),
             120.0,
+            None,
         ),
         (
             "qemu-system-x86_64: ecpt paging",
             ("make", "-j", str(multiprocessing.cpu_count()), "-C", "qemu-ecpt"),
             60.0,
+            None,
         ),
         (
             "EMT-Linux: ecpt paging",
             ("make", "-j", str(multiprocessing.cpu_count()), "-C", "emt-linux-ecpt", "LOCALVERSION=-gen-x86"),
             120.0,
+            None,
         ),
-        # TODO: We need to build the Docker image inside dynamoRIO, but this is not supported in the current framework.
-        # (
-        #     "docker image: dynamoRIO & performance analysis",
-        #     ("cd dynamorio", "&&", "docker", "build", "-t", "dynamorio:latest", ".", "&&", "cd .."),
-        #     120.0,
-        # ),
+        (
+            "docker image: dynamoRIO & performance analysis",
+            ("docker", "build", "-t", "dynamorio:latest", "."),
+            240.0,
+            "dynamorio",
+        ),
     )
 
     def __init__(
@@ -119,8 +108,8 @@ class OracleArtifactBuild(OracleArtifactBuildBase):
 
     def _make_default_targets(self) -> tuple[BuildTarget, ...]:
         return tuple(
-            BuildTarget(name=name, cmd=cmd, timeout_seconds=timeout_seconds)
-            for (name, cmd, timeout_seconds) in self._DEFAULT_TARGET_SPECS
+            BuildTarget(name=name, cmd=cmd, timeout_seconds=timeout_seconds, relative_workdir=workdir)
+            for (name, cmd, timeout_seconds, workdir) in self._DEFAULT_TARGET_SPECS
         )
 
     def requirements(self) -> Sequence[BaseRequirement]:

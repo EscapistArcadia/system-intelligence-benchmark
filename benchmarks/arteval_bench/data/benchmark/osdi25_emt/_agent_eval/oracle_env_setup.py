@@ -44,9 +44,11 @@ class OracleEnvSetup(OracleEnvSetupBase):
     )
 
     # TODO: Update the required versions and tools based on actual EMT requirements.
-    # TODO: Update the dependency for generating the data.
-    # TODO: The original version of the script also plotted the data, but we don't need them, we just need the data themselves.
-    # TODO: Python package: pandas, 
+    # [DONE] TODO: Update the dependency for generating the data.
+    #              We only need pandas to read the generated csv files.
+    # [DONE] TODO: The original version of the script also plotted the data, but we don't need them, we just need the data themselves.
+    #              I have removed the plotting code at the very beginning.
+    # TODO: Add git clone, git submodule update, and git switch command for debug purpose.
     reqs: list[utils.BaseRequirement] = [
       DependencyVersionRequirement(
         name = "docker",

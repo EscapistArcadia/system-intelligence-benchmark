@@ -96,7 +96,8 @@ def _build_emt_config(*, agent_eval_dir: Path, workspace_root: Path) -> EntryCon
     ground_truth_paths = {
       "figure16_never": emt_refs / "figure16_never.ref.csv",
       # "figure16_always": emt_refs / "figure16_always.ref.json",
-      # "figure18_never" : emt_refs / "figure18_never.ref.csv",
+      "figure18_never" : emt_refs / "figure18_never.ref.json",
+      # "figure18_always" : emt_refs / "figure18_always.ref.json",
     },
     similarity_ratio = 0.75, # TODO: update this threshold based on actual reference data and evaluation criteria
   )
