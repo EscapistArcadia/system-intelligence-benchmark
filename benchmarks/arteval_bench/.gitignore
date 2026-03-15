@@ -10,7 +10,7 @@
 *.jpeg
 *.pdf
 *.xls
-*.csv
+# *.csv
 *.doc
 
 # Logs / temp
