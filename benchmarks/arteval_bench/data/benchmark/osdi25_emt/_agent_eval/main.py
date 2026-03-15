@@ -23,7 +23,7 @@ from evaluator.utils import (
 from oracle_artifact_build import OracleArtifactBuild
 from oracle_env_setup import OracleEnvSetup
 from oracle_benchmark_prep import OracleBenchmarkPrep
-# from oracle_experiment_runs import OracleExperimentRuns
+from oracle_experiment_runs import OracleExperimentRuns
 
 def _resolve_workspace_paths() -> tuple[Path, Path, Path]:
   """Resolve and validate _agent_eval/ and emt/ locations.
@@ -73,7 +73,7 @@ def _build_emt_config(*, agent_eval_dir: Path, workspace_root: Path) -> EntryCon
   emt_repo = (workspace_root / "emt").resolve()
   emt_agent_eval = agent_eval_dir.resolve()
   emt_refs = (emt_agent_eval / "refs").resolve() # TODO: update the actual reference data and paths
-  emt_results = (emt_repo / "results").resolve() # TODO: update the logic to process results
+  # emt_results = (emt_repo / "results").resolve() # TODO: update the logic to process results
 
   return EntryConfig(
     name = "osdi25-emt",
@@ -82,12 +82,21 @@ def _build_emt_config(*, agent_eval_dir: Path, workspace_root: Path) -> EntryCon
       "osdi25-emt": emt_repo,
     },
     results_paths = {
-      # "timings": emt_results / "timings.json",
+      "figure16_never" : emt_repo / "inst_stats" / "kern_inst_never_unified.csv",
+      # "figure16_always" : emt_repo / "inst_stats" / "kern_inst_always_result.csv", 
+      "figure18_never" : {
+        "radix" : emt_repo / "ipc_stats" / "ipc_unified_never_radix_result.csv",
+        "ecpt" : emt_repo / "ipc_stats" / "ipc_unified_never_ecpt_result.csv",
+      },
+      # "figure18_always" : {
+      #   "radix" : emt_repo / "ipc_stats" / "ipc_unified_always_radix_result.csv",
+      #   "ecpt" : emt_repo / "ipc_stats" / "ipc_unified_always_ecpt_result.csv",
+      # },
     },
     ground_truth_paths = {
-      "figure16_never": emt_refs / "figure16_never.ref.json",
-      "figure16_always": emt_refs / "figure16_always.ref.json",
-      "figure18" : emt_refs / "figure18.ref.json",
+      "figure16_never": emt_refs / "figure16_never.ref.csv",
+      # "figure16_always": emt_refs / "figure16_always.ref.json",
+      # "figure18_never" : emt_refs / "figure18_never.ref.csv",
     },
     similarity_ratio = 0.75, # TODO: update this threshold based on actual reference data and evaluation criteria
   )
@@ -116,8 +125,8 @@ def main(argv: list[str]) -> int:
   prep_checker = OracleBenchmarkPrep(config = EMT_CONFIG, logger = logger)
   score += record_result(results, type(prep_checker).__name__, prep_checker.run(verbose = verbose))
 
-  # runs_checker = OracleExperimentRuns(config = EMT_CONFIG, logger = logger)
-  # score += record_result(results, type(runs_checker).__name__, runs_checker.run(verbose = verbose))
+  runs_checker = OracleExperimentRuns(config = EMT_CONFIG, logger = logger)
+  score += record_result(results, type(runs_checker).__name__, runs_checker.run(verbose = verbose))
 
   logger.info("Agent scores: %s", results)
   return score
