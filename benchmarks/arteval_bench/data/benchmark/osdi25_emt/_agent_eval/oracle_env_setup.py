@@ -43,6 +43,10 @@ class OracleEnvSetup(OracleEnvSetupBase):
       self._config.repository_paths, self._config.name, label="repository_paths"
     )
 
+    # TODO: Update the required versions and tools based on actual EMT requirements.
+    # TODO: Update the dependency for generating the data.
+    # TODO: The original version of the script also plotted the data, but we don't need them, we just need the data themselves.
+    # TODO: Python package: pandas, 
     reqs: list[utils.BaseRequirement] = [
       DependencyVersionRequirement(
         name = "docker",
@@ -102,6 +106,12 @@ class OracleEnvSetup(OracleEnvSetupBase):
         name = "libssl-dev",
         cmd = ("pkg-config", "--modversion", "libssl"),
         required_version = (3, 0, 13),
+        compare = VersionCompare.GEQ,
+      ),
+      DependencyVersionRequirement(
+        name = "pandas",
+        cmd = ("python3", "-c", "import pandas; print(pandas.__version__)"),
+        required_version = (2, 1, 4),
         compare = VersionCompare.GEQ,
       ),
       FilesystemPathRequirement(
