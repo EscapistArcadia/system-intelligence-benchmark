@@ -22,7 +22,7 @@ from evaluator.utils import (
 )
 from oracle_artifact_build import OracleArtifactBuild
 from oracle_env_setup import OracleEnvSetup
-# from oracle_benchmark_prep import OracleBenchmarkPrep
+from oracle_benchmark_prep import OracleBenchmarkPrep
 # from oracle_experiment_runs import OracleExperimentRuns
 
 def _resolve_workspace_paths() -> tuple[Path, Path, Path]:
@@ -85,10 +85,11 @@ def _build_emt_config(*, agent_eval_dir: Path, workspace_root: Path) -> EntryCon
       # "timings": emt_results / "timings.json",
     },
     ground_truth_paths = {
-      # "datasets": emt_refs / "datasets.ref.json",
-      # "timings": emt_refs / "timings.ref.json",
+      "figure16_never": emt_refs / "figure16_never.ref.json",
+      "figure16_always": emt_refs / "figure16_always.ref.json",
+      "figure18" : emt_refs / "figure18.ref.json",
     },
-    similarity_ratio = 0.75,
+    similarity_ratio = 0.75, # TODO: update this threshold based on actual reference data and evaluation criteria
   )
 
 def main(argv: list[str]) -> int:
@@ -112,8 +113,8 @@ def main(argv: list[str]) -> int:
   build_checker = OracleArtifactBuild(config = EMT_CONFIG, logger = logger)
   score += record_result(results, type(build_checker).__name__, build_checker.run(verbose = verbose))
 
-  # prep_checker = OracleBenchmarkPrep(config = EMT_CONFIG, logger = logger)
-  # score += record_result(results, type(prep_checker).__name__, prep_checker.run(verbose = verbose))
+  prep_checker = OracleBenchmarkPrep(config = EMT_CONFIG, logger = logger)
+  score += record_result(results, type(prep_checker).__name__, prep_checker.run(verbose = verbose))
 
   # runs_checker = OracleExperimentRuns(config = EMT_CONFIG, logger = logger)
   # score += record_result(results, type(runs_checker).__name__, runs_checker.run(verbose = verbose))
